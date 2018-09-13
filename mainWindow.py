@@ -1,7 +1,12 @@
 import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication, qApp, QAction
+
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMainWindow, QApplication, qApp, QAction, QPushButton, QHBoxLayout, QVBoxLayout, QWidget, \
+    QToolButton, QSlider, QLabel, QLineEdit
 
 from modalWindow import modalWindow
+from settingsWindow import settingsWindow
+from trainWindow import TrainWindow
 
 
 class mainWindow(QMainWindow):
@@ -11,7 +16,6 @@ class mainWindow(QMainWindow):
         self.initUI()
 
     def initUI(self):
-
         menubar = self.menuBar()
         exitAction = QAction('&Exit', self)
         exitAction.setStatusTip('Exit application')
@@ -25,15 +29,79 @@ class mainWindow(QMainWindow):
         fileMenu.addAction(modalAction)
         fileMenu.addAction(exitAction)
 
+        centralForm = FormWidget()
+        self.setCentralWidget(centralForm)
+
         self.statusBar().showMessage('Ready')
         self.setMinimumSize(840, 480)
         self.setWindowTitle('Главное окно')
         self.show()
 
     def showModalWindow(self):
-        print("Окно открыто")
         modalWin = modalWindow(self)
         modalWin.show()
+
+
+class FormWidget(QWidget):
+    def __init__(self, parent=None):
+        super(FormWidget, self).__init__(parent)
+
+        duration_relax_label = QLabel("Продолжительность подсветки \"Отдыха\", сек ")
+        duration_relax_line = QLineEdit()
+        duration_relax_line.setText("2")
+        duration_relax_hbox = QHBoxLayout()
+        duration_relax_hbox.setSpacing(20)
+        duration_relax_hbox.addWidget(duration_relax_label)
+        duration_relax_hbox.addWidget(duration_relax_line)
+        duration_relax_hbox.addStretch(1)
+
+        duration_compress_label = QLabel("Продолжительность подсветки \"Сжатия\", сек  ")
+        duration_compress_line = QLineEdit()
+        duration_compress_line.setText("2")
+        duration_compress_hbox = QHBoxLayout()
+        duration_compress_hbox.setSpacing(20)
+        duration_compress_hbox.addWidget(duration_compress_label)
+        duration_compress_hbox.addWidget(duration_compress_line)
+        duration_compress_hbox.addStretch(1)
+
+        quantity_label = QLabel("Количество сжатий каждой руки                        ")
+        quantity_line = QLineEdit()
+        quantity_line.setText("5")
+        quantity_hbox = QHBoxLayout()
+        quantity_hbox.setSpacing(20)
+        quantity_hbox.addWidget(quantity_label)
+        quantity_hbox.addWidget(quantity_line)
+        quantity_hbox.addStretch(1)
+
+        train_button = QPushButton("Обучить классификатор")
+        train_button.clicked.connect(self.showTrainWindow)
+        online_button = QPushButton("Онлайн режим")
+        settings_button = QPushButton("Настройки классификатора")
+        settings_button.clicked.connect(self.showSettingsWindow)
+        button_hbox = QHBoxLayout()
+        button_hbox.setSpacing(15)
+        button_hbox.addWidget(train_button)
+        button_hbox.addWidget(online_button)
+        button_hbox.addWidget(settings_button)
+        button_hbox.addStretch(1)
+
+        vbox = QVBoxLayout()
+        vbox.setSpacing(20)
+        vbox.addItem(duration_relax_hbox)
+        vbox.addItem(duration_compress_hbox)
+        vbox.addItem(quantity_hbox)
+        vbox.addItem(button_hbox)
+        vbox.addStretch(1)
+
+        self.setLayout(vbox)
+
+    def showTrainWindow(self):
+        modalTrainWin = TrainWindow(self)
+        modalTrainWin.show()
+
+    def showSettingsWindow(self):
+        modalSettingsWin = settingsWindow(self)
+        modalSettingsWin.show()
 
 
 if __name__ == '__main__':

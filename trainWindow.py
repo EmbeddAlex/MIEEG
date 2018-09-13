@@ -35,9 +35,9 @@ class ShapesWidget(QWidget):
         self.repaint()
 
 
-class modalWindow(QWidget):
+class TrainWindow(QWidget):
     def __init__(self, parent=None):
-        super(modalWindow, self).__init__(parent)
+        super(TrainWindow, self).__init__(parent)
         self.setWindowFlags(QtCore.Qt.Dialog)
         self.setWindowModality(QtCore.Qt.WindowModal)
         self.setWindowTitle("Модальное окно")
