@@ -11,9 +11,6 @@ class settingsWindow(QWidget):
         self.setWindowFlags(QtCore.Qt.Dialog)
         self.setWindowModality(QtCore.Qt.WindowModal)
         self.setWindowTitle("Модальное окно")
-        p = self.palette()
-        p.setColor(self.backgroundRole(), Qt.black)
-        self.setPalette(p)
         self.initUI()
 
     def initUI(self):
@@ -22,7 +19,6 @@ class settingsWindow(QWidget):
         blueButton = QPushButton("Blue")
         greenButton = QPushButton("Green")
         hbox = QHBoxLayout()
-        hbox.addStretch(1)
         hbox.addWidget(greyButton)
         hbox.addWidget(blueButton)
         hbox.addWidget(greenButton)
@@ -32,7 +28,6 @@ class settingsWindow(QWidget):
         self.setLayout(vbox)
 
         self.setFixedSize(800, 490)
-        #self.showFullScreen()
         self.center()
 
     def keyPressEvent(self, e):

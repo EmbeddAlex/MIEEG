@@ -1,45 +1,26 @@
 import sys
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QMainWindow, QApplication, qApp, QAction, QPushButton, QHBoxLayout, QVBoxLayout, QWidget, \
-    QToolButton, QSlider, QLabel, QLineEdit
+from PyQt5.QtCore import QRect
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QHBoxLayout, QVBoxLayout, QWidget, \
+    QLabel, QLineEdit, QFileDialog
 
-from modalWindow import modalWindow
 from settingsWindow import settingsWindow
 from trainWindow import TrainWindow
+from visualWindow import visualWindow
 
 
 class mainWindow(QMainWindow):
-
     def __init__(self, parent=None):
         super(mainWindow, self).__init__(parent)
         self.initUI()
 
     def initUI(self):
-        menubar = self.menuBar()
-        exitAction = QAction('&Exit', self)
-        exitAction.setStatusTip('Exit application')
-        exitAction.triggered.connect(qApp.quit)
-
-        modalAction = QAction('Start', self)
-        modalAction.setStatusTip('Start learning')
-        modalAction.triggered.connect(self.showModalWindow)
-
-        fileMenu = menubar.addMenu('&File')
-        fileMenu.addAction(modalAction)
-        fileMenu.addAction(exitAction)
-
         centralForm = FormWidget()
         self.setCentralWidget(centralForm)
-
         self.statusBar().showMessage('Ready')
         self.setMinimumSize(840, 480)
         self.setWindowTitle('Главное окно')
         self.show()
-
-    def showModalWindow(self):
-        modalWin = modalWindow(self)
-        modalWin.show()
 
 
 class FormWidget(QWidget):
@@ -73,9 +54,19 @@ class FormWidget(QWidget):
         quantity_hbox.addWidget(quantity_line)
         quantity_hbox.addStretch(1)
 
+        icon_pack_label = QLabel("Директория с изображениями                        ")
+        icon_pack_button = QPushButton("Выбрать папку")
+        icon_pack_button.clicked.connect(self.showDialog)
+        icon_pack_hbox = QHBoxLayout()
+        icon_pack_hbox.setSpacing(20)
+        icon_pack_hbox.addWidget(icon_pack_label)
+        icon_pack_hbox.addWidget(icon_pack_button)
+        icon_pack_hbox.addStretch(1)
+
         train_button = QPushButton("Обучить классификатор")
         train_button.clicked.connect(self.showTrainWindow)
         online_button = QPushButton("Онлайн режим")
+        online_button.clicked.connect(self.showVisualWindow)
         settings_button = QPushButton("Настройки классификатора")
         settings_button.clicked.connect(self.showSettingsWindow)
         button_hbox = QHBoxLayout()
@@ -90,10 +81,15 @@ class FormWidget(QWidget):
         vbox.addItem(duration_relax_hbox)
         vbox.addItem(duration_compress_hbox)
         vbox.addItem(quantity_hbox)
+        vbox.addItem(icon_pack_hbox)
         vbox.addItem(button_hbox)
         vbox.addStretch(1)
 
         self.setLayout(vbox)
+
+    def showVisualWindow(self):
+        modalVisualWin = visualWindow(self)
+        modalVisualWin.show()
 
     def showTrainWindow(self):
         modalTrainWin = TrainWindow(self)
@@ -102,6 +98,10 @@ class FormWidget(QWidget):
     def showSettingsWindow(self):
         modalSettingsWin = settingsWindow(self)
         modalSettingsWin.show()
+
+    def showDialog(self):
+        file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        print(file)
 
 
 if __name__ == '__main__':
