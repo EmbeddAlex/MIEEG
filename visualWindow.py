@@ -1,7 +1,8 @@
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt, QRect
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QDesktopWidget, qApp
+from PyQt5.QtGui import QPixmap, QColor, QPalette
+from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QDesktopWidget, qApp, QApplication
+from sympy import true
 
 
 class arrows(QHBoxLayout):
@@ -51,24 +52,41 @@ class arrows(QHBoxLayout):
 
 
 class visualWindow(QWidget):
+
     def __init__(self, parent=None):
         super(visualWindow, self).__init__(parent)
         self.setWindowFlags(QtCore.Qt.Dialog)
         self.setWindowModality(QtCore.Qt.WindowModal)
         self.setWindowTitle("Модальное окно")
-        p = self.palette()
-        p.setColor(self.backgroundRole(), Qt.black)
-        self.setPalette(p)
         self.initUI()
 
     def initUI(self):
         self.arrowsSet = arrows()
         self.setLayout(self.arrowsSet)
+        self.checks('#00557f')
         self.showFullScreen()
-        #self.center()
+        self.center3()
 
     def center(self):
         pass
+
+    def center3(self):
+        window_geometry = QRect(QApplication.desktop().screenGeometry(1))
+        self.resize(window_geometry.width(), window_geometry.height())
+        centerPoint = QApplication.desktop().screenGeometry(1).center()
+        window_geometry.moveCenter(centerPoint)
+        self.move(window_geometry.topLeft())
+
+    def setBGColor(self, bg):
+        self.checks(bg)
+        print(bg)
+
+    def checks(self, currentBGColor):
+        self.background_color = QColor()
+        self.background_color.setNamedColor(currentBGColor)
+        p = self.palette()
+        p.setColor(self.backgroundRole(), self.background_color)
+        self.setPalette(p)
 
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Escape:

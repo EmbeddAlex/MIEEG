@@ -1,8 +1,8 @@
 from PyQt5 import QtCore
-from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtCore import Qt, QPoint, QRect
 from PyQt5.QtGui import QPainter, QPen, QPolygon, QBrush
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, \
-    QPushButton, QHBoxLayout, QVBoxLayout
+    QPushButton, QHBoxLayout, QVBoxLayout, QApplication
 
 
 class settingsWindow(QWidget):
@@ -28,6 +28,7 @@ class settingsWindow(QWidget):
         self.setLayout(vbox)
 
         self.setFixedSize(800, 490)
+        #self.showFullScreen()
         self.center()
 
     def keyPressEvent(self, e):
@@ -39,3 +40,18 @@ class settingsWindow(QWidget):
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+
+    def center2(self):
+        window_geometry = self.frameGeometry()
+        #mousepointer_position = QApplication.desktop().cursor().pos()
+        #screen = QApplication.desktop().screenNumber(mousepointer_position)
+        centerPoint = QApplication.desktop().screenGeometry(1).center()
+        window_geometry.moveCenter(centerPoint)
+        self.move(window_geometry.topLeft())
+
+    def center3(self):
+        window_geometry = QRect(QApplication.desktop().screenGeometry(1))
+        self.resize(window_geometry.width(), window_geometry.height())
+        centerPoint = QApplication.desktop().screenGeometry(1).center()
+        window_geometry.moveCenter(centerPoint)
+        self.move(window_geometry.topLeft())

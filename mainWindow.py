@@ -1,8 +1,9 @@
 import sys
 
-from PyQt5.QtCore import QRect
+from PyQt5.QtCore import QRect, QPoint
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QHBoxLayout, QVBoxLayout, QWidget, \
-    QLabel, QLineEdit, QFileDialog
+    QLabel, QLineEdit, QFileDialog, qApp, QDesktopWidget, QColorDialog
+from sympy import false
 
 from settingsWindow import settingsWindow
 from trainWindow import TrainWindow
@@ -26,6 +27,8 @@ class mainWindow(QMainWindow):
 class FormWidget(QWidget):
     def __init__(self, parent=None):
         super(FormWidget, self).__init__(parent)
+        self.modalVisualWin = visualWindow(self)
+        self.modalVisualWin.setVisible(False)
 
         duration_relax_label = QLabel("Продолжительность подсветки \"Отдыха\", сек ")
         duration_relax_line = QLineEdit()
@@ -63,6 +66,15 @@ class FormWidget(QWidget):
         icon_pack_hbox.addWidget(icon_pack_button)
         icon_pack_hbox.addStretch(1)
 
+        cpicker_label = QLabel("Цвет фона окна классификации                        ")
+        cpicker_button = QPushButton("Выбрать цвет")
+        cpicker_button.clicked.connect(self.colorPicker)
+        cpicker_hbox = QHBoxLayout()
+        cpicker_hbox.setSpacing(20)
+        cpicker_hbox.addWidget(cpicker_label)
+        cpicker_hbox.addWidget(cpicker_button)
+        cpicker_hbox.addStretch(1)
+
         train_button = QPushButton("Обучить классификатор")
         train_button.clicked.connect(self.showTrainWindow)
         online_button = QPushButton("Онлайн режим")
@@ -82,14 +94,16 @@ class FormWidget(QWidget):
         vbox.addItem(duration_compress_hbox)
         vbox.addItem(quantity_hbox)
         vbox.addItem(icon_pack_hbox)
+        vbox.addItem(cpicker_hbox)
         vbox.addItem(button_hbox)
         vbox.addStretch(1)
 
         self.setLayout(vbox)
 
+
     def showVisualWindow(self):
-        modalVisualWin = visualWindow(self)
-        modalVisualWin.show()
+
+        self.modalVisualWin.show()
 
     def showTrainWindow(self):
         modalTrainWin = TrainWindow(self)
@@ -102,6 +116,10 @@ class FormWidget(QWidget):
     def showDialog(self):
         file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
         print(file)
+
+    def colorPicker(self):
+        color = QColorDialog.getColor()
+        self.modalVisualWin.setBGColor(color.name())
 
 
 if __name__ == '__main__':
