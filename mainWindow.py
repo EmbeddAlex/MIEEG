@@ -1,9 +1,7 @@
 import sys
 
-from PyQt5.QtCore import QRect, QPoint
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QHBoxLayout, QVBoxLayout, QWidget, \
-    QLabel, QLineEdit, QFileDialog, qApp, QDesktopWidget, QColorDialog
-from sympy import false
+    QLabel, QLineEdit, QFileDialog, QColorDialog
 
 from settingsWindow import settingsWindow
 from trainWindow import TrainWindow
@@ -27,8 +25,9 @@ class mainWindow(QMainWindow):
 class FormWidget(QWidget):
     def __init__(self, parent=None):
         super(FormWidget, self).__init__(parent)
-        self.modalVisualWin = visualWindow(self)
-        self.modalVisualWin.setVisible(False)
+
+
+        #self.modalVisualWin.setHidden(True)
 
         duration_relax_label = QLabel("Продолжительность подсветки \"Отдыха\", сек ")
         duration_relax_line = QLineEdit()
@@ -100,9 +99,8 @@ class FormWidget(QWidget):
 
         self.setLayout(vbox)
 
-
     def showVisualWindow(self):
-
+        self.modalVisualWin = visualWindow(self)
         self.modalVisualWin.show()
 
     def showTrainWindow(self):
@@ -115,11 +113,11 @@ class FormWidget(QWidget):
 
     def showDialog(self):
         file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-        print(file)
+        self.modalVisualWin.updatePixmaps(file)
 
     def colorPicker(self):
         color = QColorDialog.getColor()
-        self.modalVisualWin.setBGColor(color.name())
+        self.modalVisualWin.setColorPallete(color.name())
 
 
 if __name__ == '__main__':

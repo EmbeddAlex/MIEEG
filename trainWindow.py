@@ -68,7 +68,6 @@ class TrainWindow(QWidget):
         self.setLayout(vbox)
 
         self.setFixedSize(800, 490)
-        #self.showFullScreen()
         self.center()
 
     def keyPressEvent(self, e):

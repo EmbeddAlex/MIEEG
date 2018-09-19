@@ -29,7 +29,7 @@ class settingsWindow(QWidget):
 
         self.setFixedSize(800, 490)
         #self.showFullScreen()
-        self.center()
+        self.center2()
 
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Escape:
@@ -43,9 +43,9 @@ class settingsWindow(QWidget):
 
     def center2(self):
         window_geometry = self.frameGeometry()
-        #mousepointer_position = QApplication.desktop().cursor().pos()
-        #screen = QApplication.desktop().screenNumber(mousepointer_position)
-        centerPoint = QApplication.desktop().screenGeometry(1).center()
+        mousepointer_position = QApplication.desktop().cursor().pos()
+        screen = QApplication.desktop().screenNumber(mousepointer_position)
+        centerPoint = QApplication.desktop().screenGeometry(screen).center()
         window_geometry.moveCenter(centerPoint)
         self.move(window_geometry.topLeft())
 
