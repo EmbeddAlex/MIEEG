@@ -3,21 +3,21 @@ import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QHBoxLayout, QVBoxLayout, QWidget, \
     QLabel, QLineEdit, QFileDialog, QColorDialog
 
+from Control import Control
 from settingsWindow import settingsWindow
-from trainWindow import TrainWindow
 from visualWindow import visualWindow
 
 
-class mainWindow(QMainWindow):
+class MainWindow(QMainWindow):
     def __init__(self, parent=None):
-        super(mainWindow, self).__init__(parent)
+        super(MainWindow, self).__init__(parent)
         self.initUI()
 
     def initUI(self):
         centralForm = FormWidget()
         self.setCentralWidget(centralForm)
         self.statusBar().showMessage('Ready')
-        self.setMinimumSize(840, 480)
+        self.setMinimumSize(640, 480)
         self.setWindowTitle('Главное окно')
         self.show()
 
@@ -26,8 +26,8 @@ class FormWidget(QWidget):
     def __init__(self, parent=None):
         super(FormWidget, self).__init__(parent)
 
-
-        #self.modalVisualWin.setHidden(True)
+        self.modalVisualWin = visualWindow(self)
+        self.modalVisualWin.setHidden(True)
 
         duration_relax_label = QLabel("Продолжительность подсветки \"Отдыха\", сек ")
         duration_relax_line = QLineEdit()
@@ -100,19 +100,19 @@ class FormWidget(QWidget):
         self.setLayout(vbox)
 
     def showVisualWindow(self):
-        self.modalVisualWin = visualWindow(self)
+        #self.modalVisualWin = visualWindow(self)
+        self.modalVisualWin.centerMultiScreen()
         self.modalVisualWin.show()
 
     def showTrainWindow(self):
-        modalTrainWin = TrainWindow(self)
-        modalTrainWin.show()
+        pass
 
     def showSettingsWindow(self):
         modalSettingsWin = settingsWindow(self)
         modalSettingsWin.show()
 
     def showDialog(self):
-        file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        file = str(QFileDialog.getExistingDirectory(None, "Select Directory", "./src/themes"))
         self.modalVisualWin.updatePixmaps(file)
 
     def colorPicker(self):
@@ -122,5 +122,5 @@ class FormWidget(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = mainWindow()
+    ex = MainWindow()
     sys.exit(app.exec_())

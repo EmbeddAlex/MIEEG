@@ -6,9 +6,9 @@ from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QDesktopWidget, QAppli
 from confParser import ConfParser
 
 
-class arrows(QHBoxLayout):
+class Arrows(QHBoxLayout):
     def __init__(self, parent=None):
-        super(arrows, self).__init__(parent)
+        super(Arrows, self).__init__(parent)
         self.setSpacing(40)
 
         self.leftArrow = QLabel()
@@ -25,40 +25,39 @@ class arrows(QHBoxLayout):
     def setPixmaps(self, directory):
         configFile = ConfParser("src/settings.conf")
         configFile.read("paths", "theme_path")
-        if directory is not None:
-            print(configFile.conf.sections())
+        if (directory is not None) & (directory != ""):
             configFile.write("paths", "theme_path", directory)
 
         themePath = configFile.read("paths", "theme_path")
+        print(themePath)
+        self.leftArrowFirst = QPixmap(themePath + "./first_l.png")
+        self.centerRelaxFirst = QPixmap(themePath + "./first_relax.png")
+        self.rightArrowFirst = QPixmap(themePath + "./first_r.png")
 
-        self.leftArrowFirst = QPixmap(themePath + "first_l.png")
-        self.centerRelaxFirst = QPixmap(themePath + "first_relax.png")
-        self.rightArrowFirst = QPixmap(themePath + "first_r.png")
-
-        self.leftArrowSecond = QPixmap(themePath + "second_l.png")
-        self.centerRelaxSecond = QPixmap(themePath + "second_relax.png")
-        self.rightArrowSecond = QPixmap(themePath + "second_r.png")
+        self.leftArrowSecond = QPixmap(themePath + "./second_l.png")
+        self.centerRelaxSecond = QPixmap(themePath + "./second_relax.png")
+        self.rightArrowSecond = QPixmap(themePath + "./second_r.png")
 
         self.leftArrow.setPixmap(self.leftArrowFirst)
         self.centerRelax.setPixmap(self.centerRelaxFirst)
         self.rightArrow.setPixmap(self.rightArrowFirst)
 
-    def rightArrowIsGray(self):
+    def rightArrowIsFirst(self):
         self.rightArrow.setPixmap(self.rightArrowFirst)
 
-    def rightArrowIsGreen(self):
+    def rightArrowIsSecond(self):
         self.rightArrow.setPixmap(self.rightArrowSecond)
 
-    def centerRelaxIsGray(self):
+    def centerRelaxIsFirst(self):
         self.centerRelax.setPixmap(self.centerRelaxFirst)
 
-    def centerRelaxIsGreen(self):
+    def centerRelaxIsSecond(self):
         self.centerRelax.setPixmap(self.centerRelaxSecond)
 
-    def leftArrowIsGray(self):
+    def leftArrowIsFirst(self):
         self.leftArrow.setPixmap(self.leftArrowFirst)
 
-    def leftArrowIsGreen(self):
+    def leftArrowIsSecond(self):
         self.leftArrow.setPixmap(self.leftArrowSecond)
 
 
@@ -66,12 +65,11 @@ class visualWindow(QWidget):
     def __init__(self, parent=None):
         super(visualWindow, self).__init__(parent)
         self.setWindowFlags(QtCore.Qt.Dialog)
-        #self.setWindowModality(QtCore.Qt.WindowModal)
         self.setWindowTitle("Модальное окно")
         self.initUI()
 
     def initUI(self):
-        self.arrowsSet = arrows()
+        self.arrowsSet = Arrows()
         self.setLayout(self.arrowsSet)
         self.configFile = ConfParser("src/settings.conf")
         colorRead = self.configFile.read("color", "bg_color")
@@ -79,7 +77,7 @@ class visualWindow(QWidget):
         self.showFullScreen()
         numberAvailableDesktops = QDesktopWidget().screenCount()
         if numberAvailableDesktops > 1:
-            self.centerMultuScreen()
+            self.centerMultiScreen()
         else:
             self.centerSingleScreen()
 
@@ -92,7 +90,7 @@ class visualWindow(QWidget):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
-    def centerMultuScreen(self):
+    def centerMultiScreen(self):
         mousepointer_position = QApplication.desktop().cursor().pos()
         screen = QApplication.desktop().screenNumber(mousepointer_position)
         if screen == 0:
@@ -120,11 +118,3 @@ class visualWindow(QWidget):
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Escape:
             self.close()
-        if e.key() == Qt.Key_G:
-            self.arrowsSet.leftArrowIsGreen()
-            self.arrowsSet.centerRelaxIsGreen()
-            self.arrowsSet.rightArrowIsGreen()
-        if e.key() == Qt.Key_S:
-            self.arrowsSet.leftArrowIsGray()
-            self.arrowsSet.centerRelaxIsGray()
-            self.arrowsSet.rightArrowIsGray()
