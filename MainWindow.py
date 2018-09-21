@@ -1,11 +1,11 @@
 import sys
 
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QHBoxLayout, QVBoxLayout, QWidget, \
     QLabel, QLineEdit, QFileDialog, QColorDialog
-
-from Control import Control
+from VisualWindow import VisualWindow, Controller
 from settingsWindow import settingsWindow
-from visualWindow import visualWindow
 
 
 class MainWindow(QMainWindow):
@@ -14,8 +14,8 @@ class MainWindow(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        centralForm = FormWidget()
-        self.setCentralWidget(centralForm)
+        central_form = FormWidget()
+        self.setCentralWidget(central_form)
         self.statusBar().showMessage('Ready')
         self.setMinimumSize(640, 480)
         self.setWindowTitle('Главное окно')
@@ -23,11 +23,13 @@ class MainWindow(QMainWindow):
 
 
 class FormWidget(QWidget):
+
     def __init__(self, parent=None):
         super(FormWidget, self).__init__(parent)
 
-        self.modalVisualWin = visualWindow(self)
-        self.modalVisualWin.setHidden(True)
+        #self.modalVisualWin = VisualWindow(self)
+        #self.modalVisualWin.setHidden(True)
+        self.ctrl = Controller()
 
         duration_relax_label = QLabel("Продолжительность подсветки \"Отдыха\", сек ")
         duration_relax_line = QLineEdit()
@@ -100,24 +102,22 @@ class FormWidget(QWidget):
         self.setLayout(vbox)
 
     def showVisualWindow(self):
-        #self.modalVisualWin = visualWindow(self)
-        self.modalVisualWin.centerMultiScreen()
-        self.modalVisualWin.show()
+        self.ctrl.train_mode()
 
     def showTrainWindow(self):
         pass
 
     def showSettingsWindow(self):
-        modalSettingsWin = settingsWindow(self)
-        modalSettingsWin.show()
+        modal_settings_win = settingsWindow(self)
+        modal_settings_win.show()
 
     def showDialog(self):
         file = str(QFileDialog.getExistingDirectory(None, "Select Directory", "./src/themes"))
-        self.modalVisualWin.updatePixmaps(file)
+        self.ctrl.updatePixmaps(file)
 
     def colorPicker(self):
         color = QColorDialog.getColor()
-        self.modalVisualWin.setColorPallete(color.name())
+        self.ctrl.setColorPalette(color.name())
 
 
 if __name__ == '__main__':
