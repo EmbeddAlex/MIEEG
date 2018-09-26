@@ -34,6 +34,7 @@ class FormWidget(QWidget):
         duration_relax_label = QLabel("Продолжительность подсветки \"Отдыха\", сек ")
         duration_relax_line = QLineEdit()
         duration_relax_line.setText("2")
+        # duration_relax_line.textChanged(self.ctrl.visual_mode)
         duration_relax_hbox = QHBoxLayout()
         duration_relax_hbox.setSpacing(20)
         duration_relax_hbox.addWidget(duration_relax_label)

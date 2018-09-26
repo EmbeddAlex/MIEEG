@@ -1,10 +1,10 @@
 import time
-from threading import Thread
 
 from PyQt5 import QtCore
-from PyQt5.QtCore import Qt, QRect
-from PyQt5.QtGui import QPixmap, QColor, QPalette
+from PyQt5.QtCore import Qt, QRect, pyqtSignal, QThread
+from PyQt5.QtGui import QPixmap, QColor
 from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QDesktopWidget, QApplication
+
 from confParser import ConfParser
 
 
@@ -44,23 +44,24 @@ class Arrows(QHBoxLayout):
         self.centerRelax.setPixmap(self.centerRelaxFirst)
         self.rightArrow.setPixmap(self.rightArrowFirst)
 
-    def rightArrowIsFirst(self):
-        self.rightArrow.setPixmap(self.rightArrowFirst)
-
-    def rightArrowIsSecond(self):
-        self.rightArrow.setPixmap(self.rightArrowSecond)
-
-    def centerRelaxIsFirst(self):
-        self.centerRelax.setPixmap(self.centerRelaxFirst)
-
-    def centerRelaxIsSecond(self):
-        self.centerRelax.setPixmap(self.centerRelaxSecond)
-
-    def leftArrowIsFirst(self):
-        self.leftArrow.setPixmap(self.leftArrowFirst)
-
-    def leftArrowIsSecond(self):
-        self.leftArrow.setPixmap(self.leftArrowSecond)
+    def change_arrow(self, arrow, state):
+        print("change arrow called " + arrow + state)
+        if arrow == 'right':
+            if state == 'first':
+                self.rightArrow.setPixmap(self.rightArrowFirst)
+            if state == 'second':
+                print("right second changed")
+                self.rightArrow.setPixmap(self.rightArrowSecond)
+        if arrow == 'center':
+            if state == 'first':
+                self.centerRelax.setPixmap(self.centerRelaxFirst)
+            if state == 'second':
+                self.centerRelax.setPixmap(self.centerRelaxSecond)
+        if arrow == 'left':
+            if state == 'first':
+                self.leftArrow.setPixmap(self.leftArrowFirst)
+            if state == 'second':
+                self.leftArrow.setPixmap(self.leftArrowSecond)
 
 
 class VisualWindow(QWidget):
@@ -121,16 +122,13 @@ class VisualWindow(QWidget):
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Escape:
             self.close()
-        if e.key() == Qt.Key_G:
-            self.arrowsSet.rightArrowIsSecond()
-        if e.key() == Qt.Key_S:
-            self.arrowsSet.rightArrowIsFirst()
 
 
 class Controller(VisualWindow):
     def __init__(self, parent=None):
         super(Controller, self).__init__(parent)
-        self.mythread = MyThread("First")
+        self.mythread = MyThread()
+        self.mythread.signal_test.connect(self.arrowsSet.change_arrow)
 
     def train_mode(self):
         self.show()
@@ -138,15 +136,34 @@ class Controller(VisualWindow):
         #self.close()
 
     def visual_mode(self):
-        pass
+        print("visual mode")
 
 
-class MyThread(Thread):
-    def __init__(self, name):
-        Thread.__init__(self)
-        self.name = name
+class MyThread(QThread):
+    signal_test = pyqtSignal(str, str)
+
+    def __init__(self):
+        QThread.__init__(self)
 
     def run(self):
         time.sleep(2)
-        #rightArrowIsSecond()
-        print("Thread complete")
+        self.signal_test.emit('right', 'second')
+        time.sleep(2)
+        self.signal_test.emit('right', 'first')
+        time.sleep(2)
+        self.signal_test.emit('left', 'second')
+        time.sleep(2)
+        self.signal_test.emit('left', 'first')
+        time.sleep(2)
+        self.signal_test.emit('center', 'second')
+        time.sleep(2)
+        self.signal_test.emit('center', 'first')
+
+    def set_number_repeats(self, num):
+        pass
+
+    def set_time_relax(self, time_sec):
+        print(time_sec)
+
+    def set_time_compress(self, time_sec):
+        pass
