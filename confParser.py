@@ -19,3 +19,6 @@ class ConfParser:
         if not self.conf.has_section(sectionName):
             self.conf.add_section(sectionName)
         self.conf.write(open(self.file_path, "w"))
+
+
+config_file = ConfParser("src/settings.conf")

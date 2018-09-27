@@ -5,29 +5,27 @@ from PyQt5.QtWidgets import QWidget, QDesktopWidget, \
     QPushButton, QHBoxLayout, QVBoxLayout, QApplication
 
 
-class settingsWindow(QWidget):
+class SettingsWindow(QWidget):
     def __init__(self, parent=None):
-        super(settingsWindow, self).__init__(parent)
+        super(SettingsWindow, self).__init__(parent)
         self.setWindowFlags(QtCore.Qt.Dialog)
         self.setWindowModality(QtCore.Qt.WindowModal)
-        self.setWindowTitle("Модальное окно")
+        self.setWindowTitle("Настройки классификатора")
         self.initUI()
 
     def initUI(self):
 
-        greyButton = QPushButton("Grey")
-        blueButton = QPushButton("Blue")
-        greenButton = QPushButton("Green")
+        grey_button = QPushButton("Кнопка 1")
+        blue_button = QPushButton("Кнопка 2")
+        green_button = QPushButton("Кнопка 3")
         hbox = QHBoxLayout()
-        hbox.addWidget(greyButton)
-        hbox.addWidget(blueButton)
-        hbox.addWidget(greenButton)
+        hbox.addWidget(grey_button)
+        hbox.addWidget(blue_button)
+        hbox.addWidget(green_button)
 
         vbox = QVBoxLayout()
         vbox.addLayout(hbox)
         self.setLayout(vbox)
-
-        #self.setFixedSize(800, 490)
         self.center2()
 
     def keyPressEvent(self, e):
