@@ -1,3 +1,4 @@
+import random
 import time
 
 from PyQt5 import QtCore
@@ -5,7 +6,7 @@ from PyQt5.QtCore import Qt, QRect, pyqtSignal, QThread
 from PyQt5.QtGui import QPixmap, QColor
 from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QDesktopWidget, QApplication
 
-from confParser import ConfParser
+import confParser
 
 
 class Arrows(QHBoxLayout):
@@ -25,13 +26,11 @@ class Arrows(QHBoxLayout):
         self.addStretch(1)
 
     def setPixmaps(self, directory):
-        config_file = ConfParser("src/settings.conf")
-        config_file.read("paths", "theme_path")
+        confParser.config_file.read("paths", "theme_path")
         if (directory is not None) & (directory != ""):
-            config_file.write("paths", "theme_path", directory)
+            confParser.config_file.write("paths", "theme_path", directory)
 
-        theme_path = config_file.read("paths", "theme_path")
-        print(theme_path)
+        theme_path = confParser.config_file.read("paths", "theme_path")
         self.leftArrowFirst = QPixmap(theme_path + "./first_l.png")
         self.centerRelaxFirst = QPixmap(theme_path + "./first_relax.png")
         self.rightArrowFirst = QPixmap(theme_path + "./first_r.png")
@@ -45,12 +44,10 @@ class Arrows(QHBoxLayout):
         self.rightArrow.setPixmap(self.rightArrowFirst)
 
     def change_arrow(self, arrow, state):
-        print("change arrow called " + arrow + state)
         if arrow == 'right':
             if state == 'first':
                 self.rightArrow.setPixmap(self.rightArrowFirst)
             if state == 'second':
-                print("right second changed")
                 self.rightArrow.setPixmap(self.rightArrowSecond)
         if arrow == 'center':
             if state == 'first':
@@ -65,8 +62,6 @@ class Arrows(QHBoxLayout):
 
 
 class VisualWindow(QWidget):
-    configFile = ConfParser("src/settings.conf")
-
     def __init__(self, parent=None):
         super(VisualWindow, self).__init__(parent)
         self.setWindowFlags(QtCore.Qt.Dialog)
@@ -76,7 +71,7 @@ class VisualWindow(QWidget):
 
     def initUI(self):
         self.setLayout(self.arrowsSet)
-        self.setColorPalette(self.configFile.read("color", "bg_color"))
+        self.setColorPalette(confParser.config_file.read("color", "bg_color"))
         self.showFullScreen()
         self.setHidden(True)
         number_available_desktops = QDesktopWidget().screenCount()
@@ -112,7 +107,7 @@ class VisualWindow(QWidget):
         self.move(window_geometry.topLeft())
 
     def setColorPalette(self, current_bg_color):
-        self.configFile.write("color", "bg_color", current_bg_color)
+        confParser.config_file.write("color", "bg_color", current_bg_color)
         background_color = QColor()
         background_color.setNamedColor(current_bg_color)
         p = self.palette()
@@ -124,46 +119,82 @@ class VisualWindow(QWidget):
             self.close()
 
 
-class Controller(VisualWindow):
+class AppController(VisualWindow):
     def __init__(self, parent=None):
-        super(Controller, self).__init__(parent)
-        self.mythread = MyThread()
-        self.mythread.signal_test.connect(self.arrowsSet.change_arrow)
+        super(AppController, self).__init__(parent)
+        self.train_thread = MyThread()
+        self.train_thread.signal_stimul_action.connect(self.arrowsSet.change_arrow)
 
     def train_mode(self):
+        self.centerMultiScreen()
         self.show()
-        self.mythread.start()
-        #self.close()
+        self.train_thread.start()
 
     def visual_mode(self):
-        print("visual mode")
+        pass
 
 
 class MyThread(QThread):
-    signal_test = pyqtSignal(str, str)
+    signal_stimul_action = pyqtSignal(str, str)
+
+    time_relax_val = 0
+    time_compress_val = 0
+    number_repeats_val = 0
+    time_between_val = 0
 
     def __init__(self):
         QThread.__init__(self)
 
     def run(self):
-        time.sleep(2)
-        self.signal_test.emit('right', 'second')
-        time.sleep(2)
-        self.signal_test.emit('right', 'first')
-        time.sleep(2)
-        self.signal_test.emit('left', 'second')
-        time.sleep(2)
-        self.signal_test.emit('left', 'first')
-        time.sleep(2)
-        self.signal_test.emit('center', 'second')
-        time.sleep(2)
-        self.signal_test.emit('center', 'first')
+        self.generate_random_sequence(self.number_repeats_val)
 
     def set_number_repeats(self, num):
-        pass
-
-    def set_time_relax(self, time_sec):
-        print(time_sec)
+        if num is not "":
+            self.number_repeats_val = int(num)
+        else:
+            self.number_repeats_val = 1
 
     def set_time_compress(self, time_sec):
-        pass
+        if time_sec is not "":
+            self.time_compress_val = int(time_sec)
+        else:
+            self.time_compress_val = 1
+
+    def set_time_relax(self, time_sec):
+        if time_sec is not "":
+            self.time_relax_val = int(time_sec)
+        else:
+            self.time_relax_val = 1
+
+    def set_time_between_actions(self, time_sec):
+        if time_sec is not "":
+            self.time_between_val = int(time_sec)
+        else:
+            self.time_between_val = 1
+
+    def generate_random_sequence(self, quantity):
+        arrow_array = []
+        i = 0
+
+        while i < quantity:
+            arrow_array.append('left')
+            arrow_array.append('right')
+            i += 1
+        random.shuffle(arrow_array)
+        print(arrow_array)
+
+        time.sleep(self.time_between_val)
+        self.signal_stimul_action.emit('center', 'second')
+        time.sleep(self.time_relax_val)
+        self.signal_stimul_action.emit('center', 'first')
+        time.sleep(self.time_between_val)
+
+        for arrow in arrow_array:
+            self.signal_stimul_action.emit(arrow, 'second')
+            time.sleep(self.time_compress_val)
+            self.signal_stimul_action.emit(arrow, 'first')
+            time.sleep(self.time_between_val)
+            self.signal_stimul_action.emit('center', 'second')
+            time.sleep(self.time_relax_val)
+            self.signal_stimul_action.emit('center', 'first')
+            time.sleep(self.time_between_val)
