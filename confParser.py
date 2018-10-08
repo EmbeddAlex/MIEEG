@@ -15,9 +15,9 @@ class ConfParser:
         with open(self.file_path, "w") as config:
             self.conf.write(config)
         
-    def addSection(self, sectionName):
-        if not self.conf.has_section(sectionName):
-            self.conf.add_section(sectionName)
+    def addSection(self, section_name):
+        if not self.conf.has_section(section_name):
+            self.conf.add_section(section_name)
         self.conf.write(open(self.file_path, "w"))
 
 

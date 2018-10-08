@@ -26,8 +26,6 @@ class settingsWindow(QWidget):
         vbox = QVBoxLayout()
         vbox.addLayout(hbox)
         self.setLayout(vbox)
-
-        #self.setFixedSize(800, 490)
         self.center2()
 
     def keyPressEvent(self, e):

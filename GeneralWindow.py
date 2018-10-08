@@ -1,10 +1,12 @@
 import sys
 
+from IPython.core.tests.test_debugger import can_exit
 from PyQt5.QtCore import QRegExp
 from PyQt5.QtGui import QRegExpValidator
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QHBoxLayout, QVBoxLayout, QWidget, \
     QLabel, QLineEdit, QFileDialog, QColorDialog
 
+import confParser
 from PredictWindow import AppController
 from SettingsWindow import settingsWindow
 
@@ -44,8 +46,8 @@ class FormWidget(QWidget):
 
     def UI_init(self):
         duration_relax_label = QLabel("Продолжительность подсветки \"Отдыха\", сек ")
-        self.duration_relax_line.setText("2")
-        self.duration_relax_line.setValidator(QRegExpValidator(QRegExp('[1-9]{1,20}')))
+        self.duration_relax_line.setText(str(confParser.config_file.read("parameters", "relax_time")))
+        self.duration_relax_line.setValidator(QRegExpValidator(QRegExp('[0-9]{1,20}')))
         self.ctrl.train_thread.set_time_relax(self.duration_relax_line.text())
         self.duration_relax_line.textChanged.connect(
             lambda: self.ctrl.train_thread.set_time_relax(self.duration_relax_line.text()))
@@ -56,8 +58,8 @@ class FormWidget(QWidget):
         duration_relax_hbox.addStretch(1)
 
         duration_compress_label = QLabel("Продолжительность подсветки \"Сжатия\", сек  ")
-        self.duration_compress_line.setText("2")
-        self.duration_compress_line.setValidator(QRegExpValidator(QRegExp('[1-9]{1,20}')))
+        self.duration_compress_line.setText(str(confParser.config_file.read("parameters", "compress_time")))
+        self.duration_compress_line.setValidator(QRegExpValidator(QRegExp('[0-9]{1,20}')))
         self.ctrl.train_thread.set_time_compress(self.duration_compress_line.text())
         self.duration_compress_line.textChanged.connect(
             lambda: self.ctrl.train_thread.set_time_compress(self.duration_compress_line.text()))
@@ -68,8 +70,8 @@ class FormWidget(QWidget):
         duration_compress_hbox.addStretch(1)
 
         quantity_label = QLabel("Количество сжатий каждой руки                        ")
-        self.quantity_line.setText("1")
-        self.quantity_line.setValidator(QRegExpValidator(QRegExp('[1-9]{1,20}')))
+        self.quantity_line.setText(str(confParser.config_file.read("parameters", "quantity_compressions")))
+        self.quantity_line.setValidator(QRegExpValidator(QRegExp('[0-9]{1,20}')))
         self.ctrl.train_thread.set_number_repeats(self.quantity_line.text())
         self.quantity_line.textChanged.connect(
             lambda: self.ctrl.train_thread.set_number_repeats(self.quantity_line.text()))
@@ -80,8 +82,8 @@ class FormWidget(QWidget):
         quantity_hbox.addStretch(1)
 
         duration_between_label = QLabel("Пауза между стимулами, сек                                ")
-        self.duration_between_line.setText("2")
-        self.duration_between_line.setValidator(QRegExpValidator(QRegExp('[1-9]{1,20}')))
+        self.duration_between_line.setText(str(confParser.config_file.read("parameters", "between_time")))
+        self.duration_between_line.setValidator(QRegExpValidator(QRegExp('[0-9]{1,20}')))
         self.ctrl.train_thread.set_time_between_actions(self.duration_compress_line.text())
         self.duration_between_line.textChanged.connect(
             lambda: self.ctrl.train_thread.set_time_between_actions(self.duration_between_line.text()))
@@ -148,6 +150,13 @@ class FormWidget(QWidget):
     def colorPicker(self):
         color = QColorDialog.getColor()
         self.ctrl.setColorPalette(color.name())
+
+    def closeEvent(self, event):
+        if can_exit:
+            self.ctrl.close()
+            event.accept()
+        else:
+            event.ignore()
 
 
 if __name__ == '__main__':

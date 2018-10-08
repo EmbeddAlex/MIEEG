@@ -114,16 +114,12 @@ class VisualWindow(QWidget):
         p.setColor(self.backgroundRole(), background_color)
         self.setPalette(p)
 
-    def keyPressEvent(self, e):
-        if e.key() == Qt.Key_Escape:
-            self.close()
-
 
 class AppController(VisualWindow):
     def __init__(self, parent=None):
         super(AppController, self).__init__(parent)
         self.train_thread = MyThread()
-        self.train_thread.signal_stimul_action.connect(self.arrowsSet.change_arrow)
+        self.train_thread.signal_stimulus_action.connect(self.arrowsSet.change_arrow)
 
     def train_mode(self):
         self.centerMultiScreen()
@@ -133,14 +129,21 @@ class AppController(VisualWindow):
     def visual_mode(self):
         pass
 
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key_Escape:
+            self.close()
+            self.train_thread.delay_allow_sem = False
+
 
 class MyThread(QThread):
-    signal_stimul_action = pyqtSignal(str, str)
+    signal_stimulus_action = pyqtSignal(str, str)
 
     time_relax_val = 0
     time_compress_val = 0
     number_repeats_val = 0
     time_between_val = 0
+
+    delay_allow_sem = True
 
     def __init__(self):
         QThread.__init__(self)
@@ -151,26 +154,22 @@ class MyThread(QThread):
     def set_number_repeats(self, num):
         if num is not "":
             self.number_repeats_val = int(num)
-        else:
-            self.number_repeats_val = 1
+            confParser.config_file.write("parameters", "quantity_compressions", str(num))
 
     def set_time_compress(self, time_sec):
         if time_sec is not "":
             self.time_compress_val = int(time_sec)
-        else:
-            self.time_compress_val = 1
+            confParser.config_file.write("parameters", "compress_time", str(time_sec))
 
     def set_time_relax(self, time_sec):
         if time_sec is not "":
             self.time_relax_val = int(time_sec)
-        else:
-            self.time_relax_val = 1
+            confParser.config_file.write("parameters", "relax_time", str(time_sec))
 
     def set_time_between_actions(self, time_sec):
         if time_sec is not "":
             self.time_between_val = int(time_sec)
-        else:
-            self.time_between_val = 1
+            confParser.config_file.write("parameters", "between_time", str(time_sec))
 
     def generate_random_sequence(self, quantity):
         arrow_array = []
@@ -183,18 +182,30 @@ class MyThread(QThread):
         random.shuffle(arrow_array)
         print(arrow_array)
 
-        time.sleep(self.time_between_val)
-        self.signal_stimul_action.emit('center', 'second')
-        time.sleep(self.time_relax_val)
-        self.signal_stimul_action.emit('center', 'first')
-        time.sleep(self.time_between_val)
+        self.delay_sec(self.time_between_val)
+        self.signal_stimulus_action.emit('center', 'second')
+        self.delay_sec(self.time_relax_val)
+        self.signal_stimulus_action.emit('center', 'first')
+        self.delay_sec(self.time_between_val)
 
         for arrow in arrow_array:
-            self.signal_stimul_action.emit(arrow, 'second')
-            time.sleep(self.time_compress_val)
-            self.signal_stimul_action.emit(arrow, 'first')
-            time.sleep(self.time_between_val)
-            self.signal_stimul_action.emit('center', 'second')
-            time.sleep(self.time_relax_val)
-            self.signal_stimul_action.emit('center', 'first')
-            time.sleep(self.time_between_val)
+            self.signal_stimulus_action.emit(arrow, 'second')
+            self.delay_sec(self.time_compress_val)
+            self.signal_stimulus_action.emit(arrow, 'first')
+            self.delay_sec(self.time_between_val)
+            self.signal_stimulus_action.emit('center', 'second')
+            self.delay_sec(self.time_relax_val)
+            self.signal_stimulus_action.emit('center', 'first')
+            self.delay_sec(self.time_between_val)
+
+        self.delay_allow_sem = True
+        print("Thread finished")
+
+    def delay_sec(self, sec):
+        if self.delay_allow_sem:
+            sec = sec * 100
+            while sec > 0:
+                sec = sec - 10
+                time.sleep(0.1)
+                if not self.delay_allow_sem:
+                    break
