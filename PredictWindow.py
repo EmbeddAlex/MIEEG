@@ -10,14 +10,27 @@ import confParser
 
 
 class Arrows(QHBoxLayout):
+    height_k = 1
+    width_k = 1
+
     def __init__(self, parent=None):
         super(Arrows, self).__init__(parent)
-        self.setSpacing(40)
+
+        theme_path = confParser.config_file.read("paths", "theme_path")
+        self.centerRelaxSecond = QPixmap(theme_path + "./second_relax.png")
+        self.leftArrowSecond = QPixmap(theme_path + "./second_l.png")
+        self.rightArrowFirst = QPixmap(theme_path + "./first_r.png")
+        self.rightArrowSecond = QPixmap(theme_path + "./second_r.png")
+        self.centerRelaxFirst = QPixmap(theme_path + "./first_relax.png")
+        self.leftArrowFirst = QPixmap(theme_path + "./first_l.png")
+        #self.setSpacing(20)
 
         self.leftArrow = QLabel()
+        self.leftArrow.setAlignment(Qt.AlignLeft | Qt.AlignBottom)
         self.centerRelax = QLabel()
+        self.centerRelax.setAlignment(Qt.AlignBottom)
         self.rightArrow = QLabel()
-        self.setPixmaps(None)
+        self.rightArrow.setAlignment(Qt.AlignRight | Qt.AlignBottom)
 
         self.addStretch(1)
         self.addWidget(self.leftArrow)
@@ -25,63 +38,54 @@ class Arrows(QHBoxLayout):
         self.addWidget(self.rightArrow)
         self.addStretch(1)
 
-    def setPixmaps(self, directory):
-        confParser.config_file.read("paths", "theme_path")
-        if (directory is not None) & (directory != ""):
-            confParser.config_file.write("paths", "theme_path", directory)
-
-        theme_path = confParser.config_file.read("paths", "theme_path")
-        self.leftArrowFirst = QPixmap(theme_path + "./first_l.png")
-        self.centerRelaxFirst = QPixmap(theme_path + "./first_relax.png")
-        self.rightArrowFirst = QPixmap(theme_path + "./first_r.png")
-
-        self.leftArrowSecond = QPixmap(theme_path + "./second_l.png")
-        self.centerRelaxSecond = QPixmap(theme_path + "./second_relax.png")
-        self.rightArrowSecond = QPixmap(theme_path + "./second_r.png")
-
-        self.leftArrow.setPixmap(self.leftArrowFirst)
-        self.centerRelax.setPixmap(self.centerRelaxFirst)
-        self.rightArrow.setPixmap(self.rightArrowFirst)
-
     def change_arrow(self, arrow, state):
         if arrow == 'right':
             if state == 'first':
-                self.rightArrow.setPixmap(self.rightArrowFirst)
+                self.rightArrow.setPixmap(self.rightArrowFirst.scaled(self.rightArrowFirst.width()*self.width_k,
+                                                                      self.rightArrowFirst.height()*self.height_k,
+                                                                      Qt.KeepAspectRatio, Qt.SmoothTransformation))
             if state == 'second':
-                self.rightArrow.setPixmap(self.rightArrowSecond)
+                self.rightArrow.setPixmap(self.rightArrowSecond.scaled(self.rightArrowSecond.width()*self.width_k,
+                                                                       self.rightArrowSecond.height()*self.height_k,
+                                                                       Qt.KeepAspectRatio, Qt.SmoothTransformation))
         if arrow == 'center':
             if state == 'first':
-                self.centerRelax.setPixmap(self.centerRelaxFirst)
+                self.centerRelax.setPixmap(self.centerRelaxFirst.scaled(self.centerRelaxFirst.width()*self.width_k,
+                                                                        self.centerRelaxFirst.height()*self.height_k,
+                                                                        Qt.KeepAspectRatio, Qt.SmoothTransformation))
             if state == 'second':
-                self.centerRelax.setPixmap(self.centerRelaxSecond)
+                self.centerRelax.setPixmap(self.centerRelaxSecond.scaled(self.centerRelaxSecond.width()*self.width_k,
+                                                                         self.centerRelaxSecond.height()*self.height_k,
+                                                                         Qt.KeepAspectRatio, Qt.SmoothTransformation))
         if arrow == 'left':
             if state == 'first':
-                self.leftArrow.setPixmap(self.leftArrowFirst)
+                self.leftArrow.setPixmap(self.leftArrowFirst.scaled(self.leftArrowFirst.width()*self.width_k,
+                                                                    self.leftArrowFirst.height()*self.height_k,
+                                                                    Qt.KeepAspectRatio, Qt.SmoothTransformation))
             if state == 'second':
-                self.leftArrow.setPixmap(self.leftArrowSecond)
+                self.leftArrow.setPixmap(self.leftArrowSecond.scaled(self.leftArrowSecond.width()*self.width_k,
+                                                                     self.leftArrowSecond.height()*self.height_k,
+                                                                     Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
 
 class VisualWindow(QWidget):
     def __init__(self, parent=None):
         super(VisualWindow, self).__init__(parent)
         self.setWindowFlags(QtCore.Qt.Dialog)
-        self.setWindowTitle("Application")
         self.arrowsSet = Arrows()
         self.initUI()
 
     def initUI(self):
         self.setLayout(self.arrowsSet)
         self.setColorPalette(confParser.config_file.read("color", "bg_color"))
-        self.showFullScreen()
         self.setHidden(True)
+
+    def find_available_desktops(self):
         number_available_desktops = QDesktopWidget().screenCount()
         if number_available_desktops > 1:
             self.centerMultiScreen()
         else:
             self.centerSingleScreen()
-
-    def updatePixmaps(self, directory):
-        self.arrowsSet.setPixmaps(directory)
 
     def centerSingleScreen(self):
         qr = self.frameGeometry()
@@ -90,16 +94,25 @@ class VisualWindow(QWidget):
         self.move(qr.topLeft())
 
     def centerMultiScreen(self):
-        mousepointer_position = QApplication.desktop().cursor().pos()
-        screen = QApplication.desktop().screenNumber(mousepointer_position)
+        mouse_pointer_position = QApplication.desktop().cursor().pos()
+        screen = QApplication.desktop().screenNumber(mouse_pointer_position)
+        print("current screen " + str(screen))
+
+        self.window_one = QRect(QApplication.desktop().screenGeometry(0))
+        self.window_two = QRect(QApplication.desktop().screenGeometry(1))
+
         if screen == 0:
             window_geometry = QRect(QApplication.desktop().screenGeometry(1))
             self.resize(window_geometry.width(), window_geometry.height())
             center_point = QApplication.desktop().screenGeometry(1).center()
+            self.arrowsSet.height_k = (self.window_two.height() / self.window_one.height())
+            self.arrowsSet.width_k = (self.window_two.width() / self.window_one.width())
         elif screen == 1:
             window_geometry = QRect(QApplication.desktop().screenGeometry(0))
             self.resize(window_geometry.width(), window_geometry.height())
             center_point = QApplication.desktop().screenGeometry(0).center()
+            self.arrowsSet.height_k = (self.window_one.height() / self.window_two.height())
+            self.arrowsSet.width_k = (self.window_one.width() / self.window_two.width())
         else:
             window_geometry = self.frameGeometry()
             center_point = QDesktopWidget.availableGeometry().center()
@@ -122,12 +135,20 @@ class AppController(VisualWindow):
         self.train_thread.signal_stimulus_action.connect(self.arrowsSet.change_arrow)
 
     def train_mode(self):
-        self.centerMultiScreen()
-        self.show()
+        self.find_available_desktops()
+        self.set_default_arrows()
+        self.train_thread.delay_allow_sem = True
         self.train_thread.start()
+        self.showFullScreen()
+        self.find_available_desktops()
 
-    def visual_mode(self):
+    def predict_mode(self):
         pass
+
+    def set_default_arrows(self):
+        self.arrowsSet.change_arrow('left', 'first')
+        self.arrowsSet.change_arrow('center', 'first')
+        self.arrowsSet.change_arrow('right', 'first')
 
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Escape:
@@ -142,7 +163,6 @@ class MyThread(QThread):
     time_compress_val = 0
     number_repeats_val = 0
     time_between_val = 0
-
     delay_allow_sem = True
 
     def __init__(self):
@@ -198,7 +218,6 @@ class MyThread(QThread):
             self.signal_stimulus_action.emit('center', 'first')
             self.delay_sec(self.time_between_val)
 
-        self.delay_allow_sem = True
         print("Thread finished")
 
     def delay_sec(self, sec):

@@ -10,7 +10,7 @@ class settingsWindow(QWidget):
         super(settingsWindow, self).__init__(parent)
         self.setWindowFlags(QtCore.Qt.Dialog)
         self.setWindowModality(QtCore.Qt.WindowModal)
-        self.setWindowTitle("Модальное окно")
+        self.setWindowTitle("Настройки классификатора")
         self.initUI()
 
     def initUI(self):

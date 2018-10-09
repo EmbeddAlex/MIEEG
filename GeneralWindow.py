@@ -21,7 +21,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_form)
         self.statusBar().showMessage('Ready')
         self.setMinimumSize(640, 480)
-        self.setWindowTitle('Главное окно')
+        self.setWindowTitle('Main window')
         self.show()
 
 
@@ -108,7 +108,7 @@ class FormWidget(QWidget):
         cpicker_hbox.addStretch(1)
 
         self.train_button.clicked.connect(self.showTrainWindow)
-        self.online_button.clicked.connect(self.showVisualWindow)
+        self.online_button.clicked.connect(self.showPredictWindow)
         self.settings_button.clicked.connect(self.showSettingsWindow)
         self.icon_pack_button.clicked.connect(self.showDialog)
         self.cpicker_button.clicked.connect(self.colorPicker)
@@ -133,7 +133,7 @@ class FormWidget(QWidget):
 
         self.setLayout(vbox)
 
-    def showVisualWindow(self):
+    def showPredictWindow(self):
         pass
 
     def showTrainWindow(self):
@@ -145,7 +145,8 @@ class FormWidget(QWidget):
 
     def showDialog(self):
         file = str(QFileDialog.getExistingDirectory(None, "Select Directory", "./src/themes"))
-        self.ctrl.updatePixmaps(file)
+        if file is not "":
+            confParser.config_file.write("paths", "theme_path", str(file))
 
     def colorPicker(self):
         color = QColorDialog.getColor()
